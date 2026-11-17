@@ -1,0 +1,46 @@
+{
+  "name": "dsh-dify-migrator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Compile Dify plugin packages into auditable DSH migration plans and native DSH plugins.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "dsh-dify-migrator": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/clean.mjs && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "semver": "^7.7.3",
+    "yaml": "^2.8.1",
+    "yauzl": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/semver": "^7.7.1",
+    "@types/yauzl": "^2.10.3",
+    "@types/yazl": "^3.3.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.0.14",
+    "yazl": "^3.3.1"
+  }
+}
+
