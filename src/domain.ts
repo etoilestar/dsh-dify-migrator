@@ -1,5 +1,6 @@
 export const TARGET_DIFY_VERSION = "1.13.3"
 export const REPORT_SCHEMA_VERSION = "0.1.0"
+export const DSH_TOOL_PACKAGE_SCHEMA_VERSION = 1
 
 export type DifyPluginKind =
   | "tool"
@@ -136,6 +137,89 @@ export interface BatchMigrationReport {
     unique: number
     duplicates: number
     dispositions: Partial<Record<MigrationDisposition, number>>
+  }
+}
+
+export interface DshToolPackageCredential {
+  name: string
+  label: string
+  required: boolean
+  secret: boolean
+}
+
+export interface DshToolPackageTool {
+  ref: string
+  name: string
+  label: string
+  description: string
+  provider: string
+  implementationPath: string
+  inputSchema: Record<string, unknown>
+  outputSchema?: Record<string, unknown>
+}
+
+export interface DshToolPackageManifest {
+  schemaVersion: typeof DSH_TOOL_PACKAGE_SCHEMA_VERSION
+  id: string
+  name: string
+  version: string
+  description: string
+  origin: {
+    platform: "dify"
+    targetVersion: string
+    packageId: string
+    sha256: string
+    author: string
+    plugin: string
+  }
+  runtime: {
+    kind: "python-dify-tool-worker"
+    command: string
+    workerPath: string
+    payloadPath: string
+    timeoutMs: number
+  }
+  credentials: DshToolPackageCredential[]
+  tools: DshToolPackageTool[]
+}
+
+export interface CompiledDshToolPackage {
+  outputDirectory: string
+  manifestPath: string
+  manifest: DshToolPackageManifest
+}
+
+export type BatchConversionStatus = "installed" | "converted" | "skipped" | "duplicate" | "failed"
+
+export interface BatchConversionRecord {
+  sourcePath: string
+  status: BatchConversionStatus
+  sha256?: string
+  duplicateOf?: string
+  packageId?: string
+  disposition?: MigrationDisposition
+  outputDirectory?: string
+  installedDirectory?: string
+  dshPackageId?: string
+  version?: string
+  tools?: string[]
+  credentials?: string[]
+  error?: { code: string; message: string }
+}
+
+export interface BatchConversionReport {
+  schemaVersion: "0.1.0"
+  targetDifyVersion: string
+  createdAt: string
+  inputs: string[]
+  packages: BatchConversionRecord[]
+  summary: {
+    discovered: number
+    installed: number
+    converted: number
+    skipped: number
+    duplicates: number
+    failed: number
   }
 }
 
