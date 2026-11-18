@@ -1,6 +1,7 @@
 export const TARGET_DIFY_VERSION = "1.13.3"
 export const REPORT_SCHEMA_VERSION = "0.1.0"
 export const DSH_TOOL_PACKAGE_SCHEMA_VERSION = 1
+export const DSH_MODEL_PACKAGE_SCHEMA_VERSION = 1
 
 export type DifyPluginKind =
   | "tool"
@@ -13,6 +14,7 @@ export type DifyPluginKind =
 
 export type MigrationDisposition =
   | "wrapped-native"
+  | "wrapped-model"
   | "review-required"
   | "unsupported"
   | "incompatible"
@@ -74,6 +76,15 @@ export interface DifyToolProviderIR {
   tools: DifyToolIR[]
 }
 
+export interface DifyModelProviderIR {
+  name: string
+  label: string
+  declarationPath: string
+  adapter: "xinference-openai-compatible" | "unsupported"
+  supportedModelTypes: string[]
+  credentials: Array<DifyCredentialIR & { defaultValue?: unknown }>
+}
+
 export interface PackageEntryIR {
   path: string
   compressedBytes: number
@@ -111,6 +122,7 @@ export interface BatchPackageRecord {
   duplicateOf?: string
   manifest?: DifyManifestIR
   toolProviders?: DifyToolProviderIR[]
+  modelProviders?: DifyModelProviderIR[]
   plan?: MigrationPlan
   package?: {
     byteLength: number
@@ -189,6 +201,36 @@ export interface CompiledDshToolPackage {
   manifest: DshToolPackageManifest
 }
 
+export interface DshModelPackageProvider {
+  ref: string
+  name: string
+  label: string
+  description: string
+  adapter: "xinference-openai-compatible"
+  supportedModelTypes: string[]
+  credentials: Array<DifyCredentialIR & { defaultValue?: unknown }>
+}
+
+export interface DshModelPackageManifest {
+  schemaVersion: typeof DSH_MODEL_PACKAGE_SCHEMA_VERSION
+  id: string
+  name: string
+  version: string
+  description: string
+  origin: DshToolPackageManifest["origin"]
+  runtime: {
+    kind: "openai-compatible-model-adapter"
+    timeoutMs: number
+  }
+  providers: DshModelPackageProvider[]
+}
+
+export interface CompiledDshModelPackage {
+  outputDirectory: string
+  manifestPath: string
+  manifest: DshModelPackageManifest
+}
+
 export type BatchConversionStatus = "installed" | "converted" | "skipped" | "duplicate" | "failed"
 
 export interface BatchConversionRecord {
@@ -203,7 +245,9 @@ export interface BatchConversionRecord {
   dshPackageId?: string
   version?: string
   tools?: string[]
+  providers?: string[]
   credentials?: string[]
+  issues?: MigrationIssue[]
   error?: { code: string; message: string }
 }
 

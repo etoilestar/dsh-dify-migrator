@@ -32,7 +32,7 @@ describe("DSH Tool package compiler", () => {
     })
     expect(JSON.parse(await readFile(compiled.manifestPath, "utf8"))).toEqual(compiled.manifest)
     const installed = await installDshToolPackage(compiled.outputDirectory, join(root, "dsh-data"))
-    expect(installed).toContain("migrated-tools/dsh_dify__example__echo@0.0.1")
+    expect(installed.replaceAll("\\", "/")).toContain("migrated-tools/dsh_dify__example__echo@0.0.1")
 
     const request = JSON.stringify({
       payloadPath: join(compiled.outputDirectory, "payload"),

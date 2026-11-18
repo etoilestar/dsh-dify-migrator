@@ -1,9 +1,16 @@
 import semver from "semver"
-import { TARGET_DIFY_VERSION, type DifyManifestIR, type MigrationIssue, type MigrationPlan } from "../domain.js"
+import {
+  TARGET_DIFY_VERSION,
+  type DifyManifestIR,
+  type DifyModelProviderIR,
+  type MigrationIssue,
+  type MigrationPlan,
+} from "../domain.js"
 
 export function classifyMigration(
   manifest: DifyManifestIR,
   targetDifyVersion = TARGET_DIFY_VERSION,
+  modelProviders: readonly DifyModelProviderIR[] = [],
 ): MigrationPlan {
   const issues: MigrationIssue[] = []
   const targetPluginId = `dify_${slug(manifest.author)}_${slug(manifest.name)}_${slug(manifest.version)}`
@@ -34,6 +41,13 @@ export function classifyMigration(
     issues.push(issue("ISOLATED_WORKER_REQUIRED", "warning", "Tool can enter the native DSH wrapper path; Python remains isolated implementation detail"))
     issues.push(issue("CREDENTIAL_REBIND_REQUIRED", "info", "Credentials are intentionally not migrated and must be rebound in DSH"))
     return { targetDifyVersion, targetPluginId, disposition: "wrapped-native", capabilities: manifest.capabilities, issues }
+  }
+
+  const modelOnly = manifest.capabilities.length === 1 && manifest.capabilities[0] === "model"
+  if (modelOnly && modelProviders.length > 0 && modelProviders.every((provider) => provider.adapter === "xinference-openai-compatible")) {
+    issues.push(issue("XINFERENCE_LLM_ADAPTER", "warning", "Xinference LLM models will use the native DSH OpenAI-compatible adapter"))
+    issues.push(issue("CREDENTIAL_REBIND_REQUIRED", "info", "Server URL, model UID and API key are not migrated and must be rebound in DSH"))
+    return { targetDifyVersion, targetPluginId, disposition: "wrapped-model", capabilities: manifest.capabilities, issues }
   }
 
   if (manifest.capabilities.includes("model")) {

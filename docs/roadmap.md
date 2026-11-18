@@ -27,13 +27,15 @@
 - rewrite Dify Tool nodes to native DSH tool identities;
 - preserve Dify provenance only as metadata.
 
-## M3 — model providers
+## M3 — model providers (Xinference LLM implemented)
 
-- LLM streaming and usage;
-- tool calls and structured output;
+- Xinference LLM streaming and usage;
+- Xinference OpenAI-compatible tool calls;
+- native DSH provider registration and workflow identity mapping;
+- metadata-only compilation with explicit credential rebinding;
 - embeddings and reranking;
 - speech and multimodal capability negotiation;
-- Xinference end-to-end fixture.
+- additional provider adapters and end-to-end service fixtures.
 
 Datasource, Trigger, Agent Strategy, and Endpoint adapters remain out of scope
 until DSH has equivalent lifecycle contracts and independent acceptance tests.

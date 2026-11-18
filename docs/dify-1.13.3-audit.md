@@ -20,7 +20,7 @@ runtime contract:
 | Dify capability | Initial migration status | Reason |
 |---|---|---|
 | Tool | wrapper path | Maps to `ctx.tools.register`; implementation isolation remains required |
-| Model | review required | Needs streaming, usage, tool-call, modality, and provider lifecycle adapters |
+| Model | Xinference LLM adapter; otherwise review required | Xinference chat, streaming, usage and tool calls map to the native DSH LLM service; embeddings, rerank, speech and other providers still need adapters |
 | Endpoint/Extension | unsupported in MVP | Requires ingress and lifecycle policy |
 | Agent Strategy | unsupported in MVP | It is an agent-loop strategy, not a model-callable Tool |
 | Datasource | unsupported in MVP | Needs data ingestion and persistence contracts |

@@ -11,6 +11,7 @@ import { MigrationError } from "./errors.js"
 import { readDifyPackage } from "./dify/package-reader.js"
 import { parseDifyManifest } from "./dify/manifest.js"
 import { parseToolProviders } from "./dify/tool-provider.js"
+import { parseModelProviders } from "./dify/model-provider.js"
 import { classifyMigration } from "./migration/classifier.js"
 
 export async function scanDifyPackages(inputs: readonly string[]): Promise<BatchMigrationReport> {
@@ -26,13 +27,15 @@ export async function scanDifyPackages(inputs: readonly string[]): Promise<Batch
       if (!duplicateOf) firstByHash.set(pkg.sha256, sourcePath)
       const manifest = parseDifyManifest(pkg)
       const toolProviders = manifest.capabilities.includes("tool") ? parseToolProviders(pkg, manifest) : undefined
+      const modelProviders = manifest.capabilities.includes("model") ? parseModelProviders(pkg, manifest) : undefined
       packages.push({
         sourcePath,
         sha256: pkg.sha256,
         ...(duplicateOf ? { duplicateOf } : {}),
         manifest,
         ...(toolProviders ? { toolProviders } : {}),
-        plan: classifyMigration(manifest),
+        ...(modelProviders ? { modelProviders } : {}),
+        plan: classifyMigration(manifest, TARGET_DIFY_VERSION, modelProviders),
         package: {
           byteLength: pkg.byteLength,
           entryCount: pkg.entries.length,

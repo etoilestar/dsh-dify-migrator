@@ -6,6 +6,10 @@ export function dshPackageId(author: string, plugin: string): string {
   return `dsh_dify__${segment(author)}__${segment(plugin)}`
 }
 
+export function dshModelProviderRef(author: string, plugin: string, provider: string): string {
+  return `dsh_model__${segment(author)}__${segment(plugin)}__${segment(provider)}`
+}
+
 function segment(value: string): string {
   const normalized = value.toLowerCase().normalize("NFKD")
     .replace(/[^a-z0-9]+/g, "_")

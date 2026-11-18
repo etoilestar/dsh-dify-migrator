@@ -38,8 +38,10 @@ workflow DSL + .difypkg directory
 ## Runtime policy
 
 Arbitrary Python cannot be translated soundly to TypeScript. A generated Tool
-plugin may own an isolated private worker, but all public behavior remains DSH
-native: registration, schemas, credentials, permissions, cancellation,
-timeouts, logging, and workflow binding. There is no Dify marketplace,
-plugin-daemon, or second capability registry at runtime.
+plugin may own an isolated private worker. A recognized Xinference package is
+instead compiled to metadata only and registered through the DSH LLM service;
+its Python is never copied or executed. All public behavior remains DSH native:
+registration, schemas, credentials, permissions, cancellation, timeouts,
+logging, and workflow binding. There is no Dify marketplace, plugin-daemon, or
+second capability registry at runtime.
 
