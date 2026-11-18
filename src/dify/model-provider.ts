@@ -1,5 +1,11 @@
 import { parse } from "yaml"
-import type { DifyCredentialIR, DifyManifestIR, DifyModelProviderIR, RawDifyPackage } from "../domain.js"
+import {
+  isSupportedXinferenceModelType,
+  type DifyCredentialIR,
+  type DifyManifestIR,
+  type DifyModelProviderIR,
+  type RawDifyPackage,
+} from "../domain.js"
 import { MigrationError } from "../errors.js"
 
 export function parseModelProviders(pkg: RawDifyPackage, manifest: DifyManifestIR): DifyModelProviderIR[] {
@@ -15,7 +21,7 @@ function parseModelProvider(pkg: RawDifyPackage, declarationPath: string): DifyM
     ? schema.credential_form_schemas.map((value, index) => parseCredential(value, declarationPath, index))
     : []
   const variables = new Set(credentials.map((credential) => credential.name))
-  const adapter = name === "xinference" && supportedModelTypes.includes("llm")
+  const adapter = name === "xinference" && supportedModelTypes.some(isSupportedXinferenceModelType)
     && variables.has("server_url") && variables.has("model_uid")
     ? "xinference-openai-compatible"
     : "unsupported"

@@ -6,22 +6,21 @@ is one user-visible runtime contract: migrated capabilities register as native
 DSH tools or providers rather than remaining in a second Dify registry.
 
 The current milestone targets Dify `1.13.3` Tool plugins plus the Xinference
-Model Provider's LLM capability and provides:
+Model Provider's LLM, embedding, rerank and speech capabilities and provides:
 
 - safe, bounded inspection of one or many `.difypkg` files;
 - normalized plugin manifests and capability inventory;
 - deterministic package identities and SHA-256 provenance;
-- compatibility classification for the native Tool and Xinference LLM scope;
+- compatibility classification for the native Tool and Xinference model scope;
 - batch deduplication and machine-readable migration reports;
 - compilation into native DSH Tool or Model package contracts;
 - optional atomic installation into a DSH data directory;
 - a private Python compatibility worker behind the DSH registry and runtime.
 
-Xinference text chat, SSE streaming, usage (when the endpoint reports it), and
-OpenAI-compatible tool calls are compiled to a native DSH LLM provider route.
-Embeddings, reranking, speech, other model providers, and lifecycle extensions
-remain review-required or unsupported instead of being installed with claims
-the target runtime cannot satisfy.
+Xinference text chat, SSE streaming, usage, OpenAI-compatible tool calls,
+embeddings, reranking, speech-to-text and text-to-speech are compiled into one
+metadata-only native model package. Other model providers, vision inputs and
+lifecycle extensions remain review-required or unsupported.
 
 ## Usage
 
@@ -77,15 +76,23 @@ Xinference credentials use the same package-id key in the separate Host-private
 {
   "dsh_dify__langgenius__xinference": {
     "server_url": "http://127.0.0.1:9997",
-    "model_uid": "qwen-chat",
     "api_key": "replace-if-required",
-    "invoke_timeout": "60"
+    "invoke_timeout": "60",
+    "models": {
+      "llm": { "model_uid": "qwen-chat" },
+      "text-embedding": { "model_uid": "bge-m3" },
+      "rerank": { "model_uid": "bge-reranker-v2-m3" },
+      "speech2text": { "model_uid": "whisper-large-v3" },
+      "tts": { "model_uid": "CosyVoice-300M" }
+    }
   }
 }
 ```
 
-The URL must be the Xinference server root; the adapter calls
-`/v1/chat/completions`. Reload the Host after changing the file.
+The URL must be the Xinference server root. Each model type uses its own
+deployed `model_uid`; root-level URL, API key and timeout values are shared.
+The previous root-level `model_uid` remains a backward-compatible LLM setting.
+Reload the Host after changing the file.
 
 The scanner never extracts package contents to the current directory. It
 rejects path traversal, symbolic links, excessive entry counts, oversized
@@ -96,7 +103,8 @@ entries, excessive aggregate size, and suspicious compression ratios.
 - `wrapped-native`: can be exposed through a generated native DSH plugin, with
   the original implementation isolated behind the DSH execution contract.
 - `wrapped-model`: can be exposed through a generated native DSH model package
-  and a reviewed provider adapter (currently Xinference LLM only).
+  and a reviewed provider adapter (currently Xinference LLM, text-embedding,
+  rerank, speech2text and TTS).
 - `review-required`: understood, but needs a dedicated target adapter.
 - `unsupported`: outside the current target runtime or unsafe to translate.
 - `incompatible`: explicitly requires a Dify version newer than the target.
@@ -108,7 +116,7 @@ compiler therefore emits a standard DSH package and owns a private worker as
 an implementation detail. DSH remains the only registry, credential surface,
 workflow node type, lifecycle owner, and audit boundary. Credentials are not
 copied from Dify. The Xinference adapter is metadata-only and does not execute
-the package's Python; only its OpenAI-compatible LLM route is enabled. Packages
+the package's Python; its reviewed HTTP model routes are enabled. Packages
 that require third-party Python dependencies need a
 reviewed Python environment; the migrator never downloads dependencies during
 conversion.

@@ -1,6 +1,7 @@
 import semver from "semver"
 import {
   TARGET_DIFY_VERSION,
+  isSupportedXinferenceModelType,
   type DifyManifestIR,
   type DifyModelProviderIR,
   type MigrationIssue,
@@ -45,7 +46,12 @@ export function classifyMigration(
 
   const modelOnly = manifest.capabilities.length === 1 && manifest.capabilities[0] === "model"
   if (modelOnly && modelProviders.length > 0 && modelProviders.every((provider) => provider.adapter === "xinference-openai-compatible")) {
-    issues.push(issue("XINFERENCE_LLM_ADAPTER", "warning", "Xinference LLM models will use the native DSH OpenAI-compatible adapter"))
+    const skippedTypes = [...new Set(modelProviders.flatMap((provider) => provider.supportedModelTypes)
+      .filter((type) => !isSupportedXinferenceModelType(type)))]
+    issues.push(issue("XINFERENCE_MODEL_ADAPTER", "warning", "Xinference LLM, embedding, rerank and speech models will use the native DSH adapters"))
+    if (skippedTypes.length > 0) {
+      issues.push(issue("MODEL_TYPES_SKIPPED", "warning", `Unsupported Xinference model types will be omitted: ${skippedTypes.join(", ")}`))
+    }
     issues.push(issue("CREDENTIAL_REBIND_REQUIRED", "info", "Server URL, model UID and API key are not migrated and must be rebound in DSH"))
     return { targetDifyVersion, targetPluginId, disposition: "wrapped-model", capabilities: manifest.capabilities, issues }
   }

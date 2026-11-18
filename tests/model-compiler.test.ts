@@ -36,7 +36,7 @@ describe("DSH Model package compiler", () => {
       providers: [{
         ref: "dsh_model__langgenius__xinference__xinference",
         adapter: "xinference-openai-compatible",
-        supportedModelTypes: ["llm"],
+        supportedModelTypes: ["llm", "text-embedding", "rerank", "speech2text", "tts"],
       }],
     })
     const serialized = await readFile(compiled.manifestPath, "utf8")
@@ -66,7 +66,7 @@ resource: {}
     zip.addBuffer(Buffer.from(`
 provider: xinference
 label: { en_US: Xorbits Inference }
-supported_model_types: [llm, text-embedding, rerank]
+supported_model_types: [llm, text-embedding, rerank, speech2text, tts]
 model_credential_schema:
   credential_form_schemas:
     - variable: server_url

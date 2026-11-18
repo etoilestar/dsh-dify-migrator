@@ -2,6 +2,13 @@ export const TARGET_DIFY_VERSION = "1.13.3"
 export const REPORT_SCHEMA_VERSION = "0.1.0"
 export const DSH_TOOL_PACKAGE_SCHEMA_VERSION = 1
 export const DSH_MODEL_PACKAGE_SCHEMA_VERSION = 1
+export const SUPPORTED_XINFERENCE_MODEL_TYPES = ["llm", "text-embedding", "rerank", "speech2text", "tts"] as const
+
+export type SupportedXinferenceModelType = typeof SUPPORTED_XINFERENCE_MODEL_TYPES[number]
+
+export function isSupportedXinferenceModelType(value: string): value is SupportedXinferenceModelType {
+  return (SUPPORTED_XINFERENCE_MODEL_TYPES as readonly string[]).includes(value)
+}
 
 export type DifyPluginKind =
   | "tool"

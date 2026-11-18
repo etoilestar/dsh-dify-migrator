@@ -2,6 +2,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises"
 import { basename, join, resolve } from "node:path"
 import {
   DSH_MODEL_PACKAGE_SCHEMA_VERSION,
+  isSupportedXinferenceModelType,
   TARGET_DIFY_VERSION,
   type CompiledDshModelPackage,
   type DshModelPackageManifest,
@@ -62,7 +63,7 @@ export async function compileDifyModelPackage(
         label: provider.label,
         description: `${provider.label} migrated from Dify`,
         adapter: "xinference-openai-compatible",
-        supportedModelTypes: ["llm"],
+        supportedModelTypes: provider.supportedModelTypes.filter(isSupportedXinferenceModelType),
         credentials: provider.credentials,
       })),
     }
